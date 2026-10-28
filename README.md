@@ -1,16 +1,16 @@
-# 电池真容与耗电卫士 (BatteryGuardian) — 免装环境获取 APK 指南
+# 电池真容与耗电卫士 v2.0 (1:1 还原 HTML 精致界面 + 真实耗电修复版)
 
-## 方法一：免安装 Android Studio，使用 GitHub 云端一键生成 APK（推荐，耗时约 2 分钟）
+## v2.0 核心升级与修复说明
 
-工程内置了 `.github/workflows/build-apk.yml` 自动打包脚本，你**无需在电脑上安装任何开发环境**：
+1. **视觉与交互 1:1 复刻 HTML 预览版**：
+   - 新增专属顶栏（带实时充放电电流胶囊状态灯）与**底部三栏导航（真实容量与循环 / 每日耗电排行 / 耗电归因分析）**；
+   - 第一页主卡片升级为渐变边框卡片，增加**系统虚标健康度 vs 本应用实测真实容量双进度条对比**，以及带描边底框的三列核心容量子卡片与四宫格实时遥测卡片；
+   - 第二页排行卡片直接渲染**手机真实应用图标（Bitmap）**、**四维彩色比例条（蓝/黄/紫/红）**、安装/卸载状态角标以及一键跳转第三页归因分析按钮；
+   - 第三页新增独立**四维耗电归因分析与智能省电诊断页**，支持一键打开系统应用设置将其设为“后台受限”或复制 ADB 命令，底部展示全机今日四维耗电总览。
 
-1. 登录 GitHub 新建一个仓库（公开或私有均可）。
-2. 将本压缩包解压后的所有文件（注意包含隐藏的 `.github` 文件夹）直接拖拽上传到仓库根目录并点击 **Commit changes**。
-3. 点击仓库顶部的 **Actions** 标签页，等待 `Build Android APK` 任务变成绿色勾号（约 2 分钟）。
-4. 点进该任务，在底部的 **Artifacts** 区域点击 **`BatteryGuardian-debug-apk`** 即可下载编译好的 `app-debug.apk` 到手机直接安装！
+2. **彻底移除全部假演示数据（如“王者荣耀”等）**：
+   - 删除了 `seedSampleDataIfEmpty()` 演示数据逻辑；
+   - 数据库升级至 `v2`，启动时自动执行 `purgeLegacyDemoRecords()` 清理旧版本残留的假演示记录，排行榜 100% 仅展示你手机上的真实应用数据。
 
-## 方法二：使用 Android Studio 本地编译 APK
-
-1. 打开 Android Studio，选择 **Open** 并选中解压后的工程根目录。
-2. 等待 Gradle 自动同步完成后，点击顶部菜单 **Build -> Build Bundle(s) / APK(s) -> Build APK(s)**。
-3. 编译完成后在 `app/build/outputs/apk/debug/app-debug.apk` 即可找到安装包。
+3. **修复后台常驻服务耗电排行失真 Bug**：
+   - 改用 `UsageEvents` 对今日 `00:00 ~ 当前时刻` 的 `ACTIVITY_RESUMED/PAUSED` 与 `FOREGROUND_SERVICE_START/STOP` 进行精确时间窗口切片，避免系统 `queryAndAggregateUsageStats` 跨天桶把常驻通知服务（如 Stash、OPPO 健康、GKD、语音唤醒）累加出相同的 11 小时及 840 mAh 虚高功耗。
